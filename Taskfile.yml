@@ -1,0 +1,14 @@
+version: '3'
+
+tasks:
+  run:
+    cmds:
+      - go run cmd/sso/main.go --config=./config/local.yaml
+
+  push:
+    cmds:
+      - git add *
+      - git commit -m "{{.COMMIT}}"
+      - git push origin main
+    vars:
+      COMMIT: "Default commit message"

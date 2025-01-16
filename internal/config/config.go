@@ -52,6 +52,8 @@ func fetchConfigPath() string {
 	flag.StringVar(&res, "config", "", "path to congig file")
 	flag.Parse()
 
+	// Если не был использован флаг, то
+	// Достаем путь из переменной окружения
 	if res == "" {
 		res = os.Getenv("CONFIG_PATH")
 	}

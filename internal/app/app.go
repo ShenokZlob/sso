@@ -20,6 +20,7 @@ func New(
 
 	// TODO: init auth service (auth)
 
+	// Создаем приложение и возвращаем его
 	grpcApp := grpcapp.New(log, grpcPort)
 
 	return &App{

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
-	"sso/internal/grpc/auth"
+	authgrpc "sso/internal/grpc/auth"
 
 	"google.golang.org/grpc"
 )
@@ -18,7 +18,7 @@ type App struct {
 func New(log *slog.Logger, port int) *App {
 	gRPCServer := grpc.NewServer()
 
-	auth.Register(gRPCServer)
+	authgrpc.Register(gRPCServer)
 
 	return &App{
 		log:        log,
@@ -35,13 +35,16 @@ func (a *App) MustRun() {
 
 func (a *App) Run() error {
 	// Метка для функции, чтобы было проще ее отслеживать
+	// Оставляем такие метки в функциях, которые что-то логируют "наружу"(?)
 	const op = "grpcapp.Run"
 
+	// Обертка для логов этой функции с добавлением ее названия и порта
 	log := a.log.With(
 		slog.String("op", op),
 		slog.Int("port", a.port),
 	)
 
+	// Слушаем TCP, так как gRPC работает на его базе
 	l, err := net.Listen("tcp", fmt.Sprintf(":%d", a.port))
 	if err != nil {
 		// Удобная запись для дебага. Название функции: ошибка
@@ -50,6 +53,7 @@ func (a *App) Run() error {
 
 	log.Info("grpc server is running", slog.String("addr", l.Addr().String()))
 
+	// Тут мы говорим нашему серверу обрабатывать запросы, которые слушает l
 	if err := a.gRPCServer.Serve(l); err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
