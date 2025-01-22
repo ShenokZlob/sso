@@ -12,3 +12,7 @@ tasks:
       - git push origin main
     vars:
       COMMIT: "Default commit message"
+
+  migrate:
+    cmds:
+      - go run ./cmd/migrator --storage-path=./storage/sso.db --migrations-path=./migrations

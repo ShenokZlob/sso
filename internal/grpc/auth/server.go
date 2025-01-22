@@ -1,9 +1,11 @@
 // severAPI обрабатывает все запросы сервера
 
-package auth
+package authgrpc
 
 import (
 	"context"
+	"errors"
+	"sso/internal/services/auth"
 
 	ssov1 "github.com/ShenokZlob/protos/gen/go/sso"
 	"google.golang.org/grpc"
@@ -69,6 +71,10 @@ func (s *serverAPI) Login(
 		// Например здесь мы не пишем подробно причину ошибки, чтобы клиенты не знали, че у нас под капотом
 
 		// TODO: ...
+		if errors.Is(err, auth.ErrInvalidCredentials) {
+			return nil, status.Error(codes.InvalidArgument, "invalid argument")
+		}
+
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
@@ -89,6 +95,10 @@ func (s *serverAPI) Register(
 	userID, err := s.auth.RegisterNewUser(ctx, req.GetEmail(), req.GetPassword())
 	if err != nil {
 		// TODO:...
+		if errors.Is(err, auth.ErrUserExists) {
+			return nil, status.Error(codes.AlreadyExists, "alreasy exist error")
+		}
+
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
@@ -109,6 +119,10 @@ func (s *serverAPI) IsAdmin(
 	isAdmin, err := s.auth.IsAdmin(ctx, req.GetUserId())
 	if err != nil {
 		// TODO: ...
+		if errors.Is(err, auth.ErrInvalidAppID) {
+			return nil, status.Error(codes.PermissionDenied, "invalid app ID error")
+		}
+
 		return nil, status.Error(codes.InvalidArgument, "internal error")
 	}
 
